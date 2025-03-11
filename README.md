@@ -6,3 +6,5 @@ The intent of this project is not only creating the game from scratch but also i
 - Login system
 
 This will serve for practicing some key concepts on Java/Javascript/HTML.
+
+This needs MySQL and Docker(for tests)
