@@ -1,5 +1,7 @@
 package com.tales.koreanvp;
 
+import com.tales.koreanvp.service.DatabaseConnection;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 

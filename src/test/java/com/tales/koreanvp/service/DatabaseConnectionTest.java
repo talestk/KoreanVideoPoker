@@ -1,5 +1,6 @@
-package com.tales.koreanvp;
+package com.tales.koreanvp.service;
 
+import com.tales.koreanvp.service.DatabaseConnection;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
