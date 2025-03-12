@@ -1,6 +1,5 @@
 package com.tales.koreanvp;
 
-import com.tales.koreanvp.DatabaseConnection;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -8,9 +7,6 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -25,26 +21,21 @@ public class DatabaseConnectionTest {
             .withUsername("testuser")
             .withPassword("testpassword");
 
-    private static final String PASSWORD_FILE = "C:\\Users\\tales\\IdeaProjects\\KoreanVideoPoker\\src\\test\\resources\\test_password.txt";
-
     @BeforeAll
-    static void setUp() throws IOException {
+    static void setUp() {
         // Start the MySQL container
         mysqlContainer.start();
 
-        // Create a temporary password file for testing
-        try (FileWriter writer = new FileWriter(PASSWORD_FILE)) {
-            writer.write("testpassword"); // Write the correct password
-        }
+        // Override the DatabaseConnection URL, USER, and PASSWORD with container values
+        System.setProperty("DB_URL", mysqlContainer.getJdbcUrl());
+        System.setProperty("DB_USER", mysqlContainer.getUsername());
+        System.setProperty("DB_PASSWORD", mysqlContainer.getPassword());
     }
 
     @AfterAll
     static void tearDown() {
         // Stop the MySQL container
         mysqlContainer.stop();
-
-        // Delete the temporary password file
-        new File(PASSWORD_FILE).delete();
     }
 
     @Test
@@ -64,14 +55,10 @@ public class DatabaseConnectionTest {
     }
 
     @Test
-    void testGetConnectionWithInvalidCredentials() throws IOException {
+    void testGetConnectionWithInvalidCredentials() {
         // Arrange
-        // Overwrite the password file with an invalid password
-        try (FileWriter writer = new FileWriter(PASSWORD_FILE)) {
-            writer.write("wrongpassword"); // Write an invalid password
-        }
-
         DatabaseConnection databaseConnection = new DatabaseConnection();
+        System.setProperty("DB_PASSWORD", "wrongpassword"); // Set invalid password
 
         // Act & Assert
         SQLException exception = assertThrows(SQLException.class, databaseConnection::getConnection,
