@@ -56,13 +56,13 @@ public class DatabaseConnectionTest {
     }
 
     @Test
-    void testGetConnectionWithInvalidCredentials() {
+    void testGetConnectionWithInvalidCredentials() throws SQLException {
         // Arrange
-        DatabaseConnection databaseConnection = new DatabaseConnection();
         System.setProperty("DB_PASSWORD", "wrongpassword"); // Set invalid password
 
         // Act & Assert
-        SQLException exception = assertThrows(SQLException.class, databaseConnection::getConnection,
+        SQLException exception = assertThrows(SQLException.class,
+                DatabaseConnection::getConnection,
                 "Expected SQLException due to invalid credentials");
 
         assertTrue(exception.getMessage().contains("Access denied"),

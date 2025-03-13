@@ -53,7 +53,7 @@ public class DatabaseConnection {
         }
     }
 
-    public Connection getConnection() throws SQLException {
+    public static Connection getConnection() throws SQLException {
         String password = getPassword(); // Retrieve the password dynamically
         if (password == null) {
             throw new SQLException("Database password not loaded.");
