@@ -58,6 +58,13 @@
             <version>5.5.0</version>
             <scope>test</scope>
         </dependency>
+        <!-- System Lambda for testing System.in and System.out -->
+        <dependency>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-lambda</artifactId>
+            <version>1.2.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

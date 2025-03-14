@@ -33,7 +33,7 @@ public class DatabaseConnection {
         String password = System.getProperty("DB_PASSWORD");
         if (password == null) {
             // Fallback to loading from file if system property is not set
-            password = loadPasswordFromFile("db_password.txt");
+            password = loadPasswordFromFile("C:\\Users\\tales\\IdeaProjects\\KoreanVideoPoker\\src\\main\\resources\\secrets.txt");
         }
         return password;
     }

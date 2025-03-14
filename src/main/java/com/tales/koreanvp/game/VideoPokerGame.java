@@ -37,8 +37,10 @@ public class VideoPokerGame {
 
     private List<Map<String, String>> dealHand() {
         List<Map<String, String>> hand = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            hand.add(deck.remove(0));
+        if (deck.size() > 4) {
+            for (int i = 0; i < 5; i++) {
+                hand.add(deck.remove(0));
+            }
         }
         return hand;
     }
