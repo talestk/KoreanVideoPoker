@@ -5,12 +5,14 @@ public class Player {
     private int credits;
     private int wins;
     private int losses;
+    private int bet;
 
     public Player(String username, int credits, int wins, int losses) {
         this.username = username;
         this.credits = credits;
         this.wins = wins;
         this.losses = losses;
+        this.bet = 1;
     }
 
     // Getters and Setters
@@ -46,6 +48,13 @@ public class Player {
         this.losses = losses;
     }
 
+    public int getBet() {
+        return bet;
+    }
+
+    public void setBet(int bet) {
+        this.bet = bet;
+    }
     @Override
     public String toString() {
         return "Player{" +

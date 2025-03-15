@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Video Poker - Game</title>
+</head>
+<body>
+<h1>Video Poker</h1>
+<p>Welcome, <span th:text="${currentPlayer != null ? currentPlayer.username : 'Guest'}">Guest</span>!</p>
+<p>Credits: <span th:text="${currentPlayer != null ? currentPlayer.credits : '0'}">0</span></p>
+<p>Wins: <span th:text="${currentPlayer != null ? currentPlayer.wins : '0'}">0</span></p>
+<p>Losses: <span th:text="${currentPlayer != null ? currentPlayer.losses : '0'}">0</span></p>
+
+<h2>Your Hand</h2>
+<div>
+    <div th:each="card, iterStat : ${videoPokerGame.hand}">
+        <input type="checkbox" name="discardIndices" th:value="${iterStat.index}">
+        <span th:text="${card.rank + ' of ' + card.suit}">Card</span>
+    </div>
+</div>
+
+<form action="/discard" method="post">
+    <div th:each="card, iterStat : ${videoPokerGame.hand}">
+        <input type="checkbox" name="discardIndices" th:value="${iterStat.index}">
+        <span th:text="${card.rank + ' of ' + card.suit}">Card</span>
+    </div>
+
+    <!-- Bet amount (Assuming it's stored in currentPlayer. Update as needed) -->
+    <input type="hidden" name="bet" th:value="${currentPlayer != null ? currentPlayer.bet : 1}">
+
+    <button type="submit">Discard & Draw</button>
+</form>
+
+<h3>Result: <span th:text="${result != null ? result : 'No Win'}">No Win</span></h3>
+<h3>Payout: <span th:text="${payout != null ? payout : '0'}">0</span> credits</h3>
+
+<!-- Bonus Feature Form -->
+<div th:if="${payout > 0}">
+    <form action="/double-or-nothing" method="post">
+        <button type="submit">Double or Nothing</button>
+    </form>
+</div>
+
+<!-- Show Result of Double or Nothing -->
+<p th:if="${doubleResult}" th:text="${doubleResult}"></p>
+
+<!-- Draw Button -->
+<form action="/play" method="post">
+    <button type="submit">Draw</button>
+</form>
+
+<!-- Logout Button -->
+<form action="/logout" method="post">
+    <button type="submit">Logout</button>
+</form>
+</body>
+</html>

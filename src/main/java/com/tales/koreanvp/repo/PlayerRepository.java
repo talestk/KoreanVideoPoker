@@ -3,7 +3,9 @@ package com.tales.koreanvp.repo;
 import java.sql.*;
 import com.tales.koreanvp.model.Player;
 import com.tales.koreanvp.service.DatabaseConnection;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class PlayerRepository {
 
     // Save player progress to the database
@@ -53,11 +55,11 @@ public class PlayerRepository {
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
-    // Login a player
+    // Login player (new method added)
     public Player loginPlayer(String username, String password) {
         String query = "SELECT * FROM players WHERE username = ? AND password = ?";
         try (Connection conn = DatabaseConnection.getConnection();

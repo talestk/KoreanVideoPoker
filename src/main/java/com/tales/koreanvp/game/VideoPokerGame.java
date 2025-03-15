@@ -5,6 +5,7 @@ import com.tales.koreanvp.repo.PlayerRepository;
 
 import java.util.*;
 
+
 /**
  * This game will follow a common Jacks or better Video Poker but with a twist.
  * The bonus will double the prize every time the player guess the secret card correctly.
@@ -13,13 +14,17 @@ public class VideoPokerGame {
     private static final String[] RANKS = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
     private static final String[] SUITS = {"Hearts", "Diamonds", "Clubs", "Spades"};
     private List<Map<String, String>> deck;
+    private List<Map<String, String>> hand;
     private Player player;
     private PlayerRepository playerRepository;
+
 
     public VideoPokerGame(Player player, PlayerRepository playerRepository) {
         this.player = player;
         this.playerRepository = playerRepository;
         initializeDeck();
+        this.hand = dealHand(); // Ensure hand is initialized
+
     }
 
     private void initializeDeck() {
@@ -33,9 +38,13 @@ public class VideoPokerGame {
             }
         }
         Collections.shuffle(deck);
+        System.out.println("Deck initialized and shuffled.");
     }
 
-    private List<Map<String, String>> dealHand() {
+    public List<Map<String, String>> dealHand() {
+        if (deck == null) {
+            throw new IllegalStateException("Deck has not been initialized.");
+        }
         List<Map<String, String>> hand = new ArrayList<>();
         if (deck.size() > 4) {
             for (int i = 0; i < 5; i++) {
@@ -45,17 +54,40 @@ public class VideoPokerGame {
         return hand;
     }
 
+    public List<Map<String, String>> getHand() {
+        return hand;
+    }
+
     private void displayHand(List<Map<String, String>> hand) {
         for (int i = 0; i < hand.size(); i++) {
             System.out.println(i + ": " + hand.get(i).get("rank") + " of " + hand.get(i).get("suit"));
         }
     }
 
-    private List<Map<String, String>> replaceCards(List<Map<String, String>> hand, List<Integer> discardIndices) {
+    public void replaceCards(List<Map<String, String>> hand, List<Integer> discardIndices) {
+        // Sort discard indices in descending order to avoid index shifting
+        discardIndices.sort(Collections.reverseOrder());
+
+        // Remove discarded cards
         for (int index : discardIndices) {
-            hand.set(index, deck.remove(0));
+            hand.remove((int) index);
         }
-        return hand;
+
+        // Draw new cards to maintain a 5-card hand
+        while (hand.size() < 5) {
+            hand.add(drawCard());
+        }
+    }
+    public Map<String, String> drawCard() {
+        if (deck.isEmpty()) {
+            initializeDeck();
+            shuffleDeck();
+        }
+        return deck.remove(0);
+    }
+
+    private void shuffleDeck() {
+        Collections.shuffle(deck, new Random());
     }
 
     /*
@@ -72,7 +104,7 @@ public class VideoPokerGame {
         J♠ J♥ 3♦ 5♣ 7♠	    Jacks or Better
         2♠ 4♥ 6♦ 8♣ 10♠	No Win
      */
-    protected String evaluateHand(List<Map<String, String>> hand) {
+    public String evaluateHand(List<Map<String, String>> hand) {
         // Count the number of each rank and suit in the hand
         Map<String, Integer> rankCounts = new HashMap<>();
         Map<String, Integer> suitCounts = new HashMap<>();
@@ -165,7 +197,7 @@ public class VideoPokerGame {
         return "No Win";
     }
 
-    private int determinePayout(String result, int bet) {
+    public int determinePayout(String result, int bet) {
         Map<String, Integer> payoutTable = new HashMap<>();
         payoutTable.put("Royal Flush", 250);
         payoutTable.put("Straight Flush", 50);
@@ -180,20 +212,25 @@ public class VideoPokerGame {
         return payoutTable.getOrDefault(result, 0) * bet;
     }
 
-    private int bonusFeature(int bet) {
-        Scanner scanner = new Scanner(System.in);
+    /**
+     * Bonus feature to multiply the payout based on user guesses.
+     *
+     * @param bet The initial bet amount.
+     * @param guesses A list of user guesses ("h" for higher, "l" for lower).
+     * @return The updated payout after applying the bonus multiplier.
+     */
+    public int bonusFeature(int bet, List<String> guesses) {
         int multiplier = 1;
         int correctGuesses = 0;
 
         System.out.println("\nBonus Feature Activated!");
         System.out.println("You have a chance to double or quadruple your payout!");
 
-        while (correctGuesses < 7) {
+        for (String guess : guesses) {
+            if (correctGuesses >= 7) break; // Maximum of 7 correct guesses
+
             Map<String, String> card = deck.remove(0);
             System.out.println("\nFace-Down Card: ???");
-
-            System.out.print("Is the face-down card higher or lower than 7? (h/l): ");
-            String guess = scanner.nextLine().toLowerCase();
 
             int cardRank = Arrays.asList(RANKS).indexOf(card.get("rank"));
             int sevenRank = Arrays.asList(RANKS).indexOf("7");
@@ -221,42 +258,71 @@ public class VideoPokerGame {
         return bet * multiplier;
     }
 
-    public void play() {
+    public void play(List<Integer> discardIndices) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Welcome to Video Poker - Jacks or Better!");
 
+        // Deal the initial hand
         List<Map<String, String>> hand = dealHand();
         System.out.println("\nYour hand:");
         displayHand(hand);
 
+        // Prompt the user to discard cards
         System.out.print("\nEnter the indices of cards to discard (0-4, separated by spaces): ");
         String[] indices = scanner.nextLine().split(" ");
-        List<Integer> discardIndices = new ArrayList<>();
         for (String index : indices) {
             discardIndices.add(Integer.parseInt(index));
         }
 
-        hand = replaceCards(hand, discardIndices);
+        // Replace discarded cards
+        replaceCards(hand, discardIndices);
         System.out.println("\nYour new hand:");
         displayHand(hand);
 
+        // Evaluate the hand
         String result = evaluateHand(hand);
         System.out.println("\nResult: " + result);
 
+        // Determine the payout
         int bet = 1; // Assuming a bet of 1 unit for simplicity
         int payout = determinePayout(result, bet);
 
+        // Check if the player qualifies for the bonus feature
         if (result.equals("Two Pair") || result.equals("Three of a Kind") ||
                 result.equals("Straight") || result.equals("Flush") ||
                 result.equals("Full House") || result.equals("Four of a Kind") ||
                 result.equals("Straight Flush") || result.equals("Royal Flush")) {
             System.out.println("\nYou qualified for the bonus feature!");
-            payout = bonusFeature(payout);
+
+            // Collect user guesses for the bonus feature
+            List<String> bonusGuesses = new ArrayList<>();
+            System.out.println("Guess if the next card is higher (h) or lower (l) than 7 to double your payout!");
+
+            for (int i = 0; i < 7; i++) { // Allow up to 7 guesses
+                System.out.print("Guess " + (i + 1) + ": ");
+                String guess = scanner.nextLine().toLowerCase();
+                if (guess.equals("h") || guess.equals("l")) {
+                    bonusGuesses.add(guess);
+                } else {
+                    System.out.println("Invalid guess. Please enter 'h' for higher or 'l' for lower.");
+                    i--; // Retry this guess
+                }
+            }
+
+            // Apply the bonus feature
+            payout = bonusFeature(payout, bonusGuesses);
         }
 
+        // Update player credits
         player.setCredits(player.getCredits() + payout);
         playerRepository.savePlayer(player); // Save the updated player progress
+
+        // Display final results
         System.out.println("\nFinal Payout: " + payout + " units");
         System.out.println("Your total credits: " + player.getCredits());
+    }
+
+    public Player getCurrentPlayer() {
+        return player;
     }
 }

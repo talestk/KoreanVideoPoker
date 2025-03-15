@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <title>Video Poker - Register</title>
+</head>
+<body>
+<h1>Register</h1>
+<div th:if="${error}" style="color: red;" th:text="${error}"></div>
+<form action="/register" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    <br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <br>
+    <button type="submit">Register</button>
+</form>
+<p>Already have an account? <a href="/">Login here</a>.</p>
+</body>
+</html>

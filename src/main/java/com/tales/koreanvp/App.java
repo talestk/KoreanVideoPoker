@@ -3,8 +3,8 @@ package com.tales.koreanvp;
 import com.tales.koreanvp.game.VideoPokerGame;
 import com.tales.koreanvp.model.Player;
 import com.tales.koreanvp.repo.PlayerRepository;
-import com.tales.koreanvp.service.DatabaseConnection;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class App {
@@ -46,7 +46,7 @@ public class App {
 
         VideoPokerGame game = new VideoPokerGame(player, playerRepository);
         while(true) {
-            game.play();
+            game.play(new ArrayList<>());
         }
     }
 }
